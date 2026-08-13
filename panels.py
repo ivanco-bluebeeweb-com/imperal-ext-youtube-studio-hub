@@ -47,6 +47,16 @@ async def _connect_dialog_content(ctx) -> ui.Stack:
             ui.Text("Google OAuth is not configured for this app yet.", variant="body"),
             ui.Text("An admin must set google_client_id / google_client_secret in Secrets before an account can connect.", variant="caption"),
         ])
+
+    docs = await accounts.all_accounts(ctx)
+    connected_rows = [
+        ui.Stack(direction="h", justify="between", children=[
+            ui.Text(_label(doc), variant="body"),
+            ui.Text("Connected", variant="caption"),
+        ])
+        for doc in docs if not accounts.identity_missing(doc)
+    ]
+
     try:
         url = await ctx.oauth_authorize_url("google")
     except Exception:
@@ -55,9 +65,24 @@ async def _connect_dialog_content(ctx) -> ui.Stack:
         return ui.Stack(children=[
             ui.Text("Could not build a Google authorization link right now. Try again in a moment.", variant="body"),
         ])
+
+    connect_btn = ui.Button(
+        "Add another Google account" if connected_rows else "Continue with Google",
+        icon="ExternalLink", variant="primary" if not connected_rows else "secondary",
+        full_width=True, on_click=ui.Open(url),
+    )
+
+    if connected_rows:
+        return ui.Stack(children=[
+            ui.Text("Connected Google accounts", variant="caption"),
+            *connected_rows,
+            ui.Divider(),
+            connect_btn,
+        ])
+
     return ui.Stack(children=[
         ui.Text("YouTube Studio Hub can read and manage every channel this Google account owns: content metadata, analytics, playlists, and comments. It never edits or trims the video file itself, and never publishes new uploads.", variant="body"),
-        ui.Button("Continue with Google", icon="ExternalLink", variant="primary", full_width=True, on_click=ui.Open(url)),
+        connect_btn,
     ])
 
 
