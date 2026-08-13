@@ -1,0 +1,4142 @@
+{
+  "manifest_schema_version": 3,
+  "sdk_version": "5.9.13",
+  "app_id": "youtube-studio-hub",
+  "version": "0.1.0",
+  "name": "YouTube Studio Hub",
+  "description": "Connect one or more Google accounts and manage every YouTube channel they own from one place: content metadata, analytics, channel management (playlists/comments), and content ideas. Does not edit, trim, or re-encode video files -- that stays in YouTube Studio.",
+  "icon": "icon.svg",
+  "actions_explicit": true,
+  "system": false,
+  "capabilities": [
+    "youtube:read",
+    "youtube:write",
+    "youtube:settings"
+  ],
+  "tools": [
+    {
+      "name": "connect_account",
+      "description": "Get the Google authorization link to connect a YouTube account.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "account.oauth.start"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {},
+        "title": "NoParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.account.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_accounts",
+      "description": "List connected Google accounts and connection state.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "refresh": {
+            "default": false,
+            "description": "Verify each account against the YouTube Data API",
+            "title": "Refresh",
+            "type": "boolean"
+          }
+        },
+        "title": "ListAccountsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Account": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "email": {
+                "default": "",
+                "title": "Email",
+                "type": "string"
+              },
+              "active": {
+                "default": false,
+                "title": "Active",
+                "type": "boolean"
+              },
+              "state": {
+                "default": "connected",
+                "title": "State",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Account",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Account"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "AccountList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "disconnect_account",
+      "description": "Disconnect a Google account. Its local YouTube Studio Hub data (saved ideas) is removed; nothing on YouTube itself changes.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "account.delete"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "account_id": {
+            "description": "Stable id of the connected Google account to disconnect",
+            "title": "Account Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id"
+        ],
+        "title": "DisconnectAccountParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.account.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "switch_account",
+      "description": "Change the active Google account used by default.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "account.active.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "account": {
+            "default": "",
+            "description": "Connected Google account email to make active",
+            "title": "Account",
+            "type": "string"
+          }
+        },
+        "title": "SwitchAccountParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.account.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "save_app_setting",
+      "description": "Save an app-wide YouTube Studio Hub setting (e.g. whether Content Ideas may use AI generation).",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "setting.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "ai_ideas_enabled": {
+            "default": true,
+            "description": "Whether Content Ideas may use AI generation",
+            "title": "Ai Ideas Enabled",
+            "type": "boolean"
+          }
+        },
+        "title": "SaveAppSettingParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.setting.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_channels",
+      "description": "List every YouTube channel reachable from connected Google account(s).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "account": {
+            "default": "",
+            "description": "Connected Google account email. Omit when only one account is connected.",
+            "title": "Account",
+            "type": "string"
+          }
+        },
+        "title": "ListChannelsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Channel": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "channel_id": {
+                "default": "",
+                "title": "Channel Id",
+                "type": "string"
+              },
+              "thumbnail_url": {
+                "default": "",
+                "title": "Thumbnail Url",
+                "type": "string"
+              },
+              "subscriber_count": {
+                "default": 0,
+                "title": "Subscriber Count",
+                "type": "integer"
+              },
+              "video_count": {
+                "default": 0,
+                "title": "Video Count",
+                "type": "integer"
+              },
+              "view_count": {
+                "default": 0,
+                "title": "View Count",
+                "type": "integer"
+              },
+              "channel_url": {
+                "default": "",
+                "title": "Channel Url",
+                "type": "string"
+              },
+              "account_email": {
+                "default": "",
+                "title": "Account Email",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Channel",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Channel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ChannelList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_channel",
+      "description": "Read one YouTube channel's profile and stats.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id, e.g. UCxxxxxxxx",
+            "title": "Channel Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id"
+        ],
+        "title": "ChannelScoped",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "thumbnail_url": {
+            "default": "",
+            "title": "Thumbnail Url",
+            "type": "string"
+          },
+          "subscriber_count": {
+            "default": 0,
+            "title": "Subscriber Count",
+            "type": "integer"
+          },
+          "video_count": {
+            "default": 0,
+            "title": "Video Count",
+            "type": "integer"
+          },
+          "view_count": {
+            "default": 0,
+            "title": "View Count",
+            "type": "integer"
+          },
+          "channel_url": {
+            "default": "",
+            "title": "Channel Url",
+            "type": "string"
+          },
+          "account_email": {
+            "default": "",
+            "title": "Account Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Channel",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_channel_videos",
+      "description": "List videos uploaded to one YouTube channel (My Content tab).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "description": "Maximum videos to return",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "page_token": {
+            "default": "",
+            "description": "Continuation token from the previous page",
+            "title": "Page Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id"
+        ],
+        "title": "ListChannelVideosParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Video": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "video_id": {
+                "default": "",
+                "title": "Video Id",
+                "type": "string"
+              },
+              "channel_id": {
+                "default": "",
+                "title": "Channel Id",
+                "type": "string"
+              },
+              "thumbnail_url": {
+                "default": "",
+                "title": "Thumbnail Url",
+                "type": "string"
+              },
+              "published_at": {
+                "default": "",
+                "title": "Published At",
+                "type": "string"
+              },
+              "duration": {
+                "default": "",
+                "title": "Duration",
+                "type": "string"
+              },
+              "visibility": {
+                "default": "",
+                "title": "Visibility",
+                "type": "string"
+              },
+              "view_count": {
+                "default": 0,
+                "title": "View Count",
+                "type": "integer"
+              },
+              "like_count": {
+                "default": 0,
+                "title": "Like Count",
+                "type": "integer"
+              },
+              "comment_count": {
+                "default": 0,
+                "title": "Comment Count",
+                "type": "integer"
+              },
+              "tags": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Tags",
+                "type": "array"
+              },
+              "category_id": {
+                "default": "",
+                "title": "Category Id",
+                "type": "string"
+              },
+              "video_url": {
+                "default": "",
+                "title": "Video Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Video",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Video"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "next_page_token": {
+            "default": "",
+            "title": "Next Page Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "VideoList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_video",
+      "description": "Read one video's full metadata and stats.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "video_id": {
+            "description": "YouTube video id",
+            "title": "Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "video_id"
+        ],
+        "title": "GetVideoParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "thumbnail_url": {
+            "default": "",
+            "title": "Thumbnail Url",
+            "type": "string"
+          },
+          "published_at": {
+            "default": "",
+            "title": "Published At",
+            "type": "string"
+          },
+          "duration": {
+            "default": "",
+            "title": "Duration",
+            "type": "string"
+          },
+          "visibility": {
+            "default": "",
+            "title": "Visibility",
+            "type": "string"
+          },
+          "view_count": {
+            "default": 0,
+            "title": "View Count",
+            "type": "integer"
+          },
+          "like_count": {
+            "default": 0,
+            "title": "Like Count",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "category_id": {
+            "default": "",
+            "title": "Category Id",
+            "type": "string"
+          },
+          "video_url": {
+            "default": "",
+            "title": "Video Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Video",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "update_video_metadata",
+      "description": "Update a video's title, description, tags, category, or visibility (no editing/trimming of the video file itself).",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "video.metadata.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "video_id": {
+            "description": "YouTube video id",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "title": {
+            "default": "",
+            "description": "New title; empty keeps the current title",
+            "title": "Title",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "description": "New description; empty keeps the current description",
+            "title": "Description",
+            "type": "string"
+          },
+          "tags": {
+            "description": "Replacement tag list; empty list keeps current tags",
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "category_id": {
+            "default": "",
+            "description": "YouTube video category id; empty keeps the current category",
+            "title": "Category Id",
+            "type": "string"
+          },
+          "visibility": {
+            "default": "",
+            "description": "private, unlisted, or public; empty keeps current visibility",
+            "title": "Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "video_id"
+        ],
+        "title": "UpdateVideoMetadataParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "thumbnail_url": {
+            "default": "",
+            "title": "Thumbnail Url",
+            "type": "string"
+          },
+          "published_at": {
+            "default": "",
+            "title": "Published At",
+            "type": "string"
+          },
+          "duration": {
+            "default": "",
+            "title": "Duration",
+            "type": "string"
+          },
+          "visibility": {
+            "default": "",
+            "title": "Visibility",
+            "type": "string"
+          },
+          "view_count": {
+            "default": 0,
+            "title": "View Count",
+            "type": "integer"
+          },
+          "like_count": {
+            "default": 0,
+            "title": "Like Count",
+            "type": "integer"
+          },
+          "comment_count": {
+            "default": 0,
+            "title": "Comment Count",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "category_id": {
+            "default": "",
+            "title": "Category Id",
+            "type": "string"
+          },
+          "video_url": {
+            "default": "",
+            "title": "Video Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Video",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.video.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "set_video_thumbnail",
+      "description": "Replace a video's custom thumbnail image.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "video.thumbnail.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "video_id": {
+            "description": "YouTube video id",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "image_url": {
+            "description": "Publicly reachable https:// image URL to set as the thumbnail",
+            "title": "Image Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "video_id",
+          "image_url"
+        ],
+        "title": "SetVideoThumbnailParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.video.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_channel_analytics",
+      "description": "Read channel-level YouTube Analytics: views, watch time, subscribers gained/lost, over a date range.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "ISO date, e.g. 2026-07-01",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "ISO date, e.g. 2026-08-01",
+            "title": "End Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id",
+          "start_date",
+          "end_date"
+        ],
+        "title": "GetChannelAnalyticsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "AnalyticsRow": {
+            "properties": {
+              "dimension_values": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dimension Values",
+                "type": "array"
+              },
+              "metric_values": {
+                "items": {
+                  "type": "number"
+                },
+                "title": "Metric Values",
+                "type": "array"
+              }
+            },
+            "title": "AnalyticsRow",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "start_date": {
+            "default": "",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "title": "End Date",
+            "type": "string"
+          },
+          "dimensions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/$defs/AnalyticsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "monetary_data_available": {
+            "default": false,
+            "title": "Monetary Data Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "AnalyticsReport",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_video_analytics",
+      "description": "Read video-level YouTube Analytics: views, watch time, average view duration, likes, for one video.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "video_id": {
+            "description": "YouTube video id",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "channel_id": {
+            "description": "Owning channel id (Analytics API requires it for the filter)",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "ISO date, e.g. 2026-07-01",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "ISO date, e.g. 2026-08-01",
+            "title": "End Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "video_id",
+          "channel_id",
+          "start_date",
+          "end_date"
+        ],
+        "title": "GetVideoAnalyticsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "AnalyticsRow": {
+            "properties": {
+              "dimension_values": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dimension Values",
+                "type": "array"
+              },
+              "metric_values": {
+                "items": {
+                  "type": "number"
+                },
+                "title": "Metric Values",
+                "type": "array"
+              }
+            },
+            "title": "AnalyticsRow",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "start_date": {
+            "default": "",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "title": "End Date",
+            "type": "string"
+          },
+          "dimensions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/$defs/AnalyticsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "monetary_data_available": {
+            "default": false,
+            "title": "Monetary Data Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "AnalyticsReport",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_top_videos",
+      "description": "Read a channel's top videos by views over a date range -- helps spot what is/isn't growing.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "ISO date, e.g. 2026-07-01",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "ISO date, e.g. 2026-08-01",
+            "title": "End Date",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "description": "Maximum videos to return",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "channel_id",
+          "start_date",
+          "end_date"
+        ],
+        "title": "GetTopVideosParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "AnalyticsRow": {
+            "properties": {
+              "dimension_values": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dimension Values",
+                "type": "array"
+              },
+              "metric_values": {
+                "items": {
+                  "type": "number"
+                },
+                "title": "Metric Values",
+                "type": "array"
+              }
+            },
+            "title": "AnalyticsRow",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "start_date": {
+            "default": "",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "title": "End Date",
+            "type": "string"
+          },
+          "dimensions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/$defs/AnalyticsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "monetary_data_available": {
+            "default": false,
+            "title": "Monetary Data Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "AnalyticsReport",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "get_traffic_sources",
+      "description": "Read where a channel's views come from (search, suggested, external, playlists, etc.) over a date range.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "start_date": {
+            "description": "ISO date, e.g. 2026-07-01",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "description": "ISO date, e.g. 2026-08-01",
+            "title": "End Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id",
+          "start_date",
+          "end_date"
+        ],
+        "title": "GetTrafficSourcesParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "AnalyticsRow": {
+            "properties": {
+              "dimension_values": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dimension Values",
+                "type": "array"
+              },
+              "metric_values": {
+                "items": {
+                  "type": "number"
+                },
+                "title": "Metric Values",
+                "type": "array"
+              }
+            },
+            "title": "AnalyticsRow",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "start_date": {
+            "default": "",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "end_date": {
+            "default": "",
+            "title": "End Date",
+            "type": "string"
+          },
+          "dimensions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/$defs/AnalyticsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "monetary_data_available": {
+            "default": false,
+            "title": "Monetary Data Available",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "AnalyticsReport",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_channel_playlists",
+      "description": "List a channel's playlists (Channel Management tab).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id"
+        ],
+        "title": "ListChannelPlaylistsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Playlist": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "playlist_id": {
+                "default": "",
+                "title": "Playlist Id",
+                "type": "string"
+              },
+              "channel_id": {
+                "default": "",
+                "title": "Channel Id",
+                "type": "string"
+              },
+              "item_count": {
+                "default": 0,
+                "title": "Item Count",
+                "type": "integer"
+              },
+              "visibility": {
+                "default": "",
+                "title": "Visibility",
+                "type": "string"
+              },
+              "playlist_url": {
+                "default": "",
+                "title": "Playlist Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Playlist",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Playlist"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PlaylistList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_playlist_items",
+      "description": "List the videos inside one playlist.",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "playlist_id": {
+            "description": "YouTube playlist id",
+            "title": "Playlist Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "playlist_id"
+        ],
+        "title": "ListPlaylistItemsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "PlaylistItem": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "playlist_item_id": {
+                "default": "",
+                "title": "Playlist Item Id",
+                "type": "string"
+              },
+              "playlist_id": {
+                "default": "",
+                "title": "Playlist Id",
+                "type": "string"
+              },
+              "video_id": {
+                "default": "",
+                "title": "Video Id",
+                "type": "string"
+              },
+              "position": {
+                "default": 0,
+                "title": "Position",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "PlaylistItem",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/PlaylistItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PlaylistItemList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_comments",
+      "description": "List recent comments on one video, for moderation (Channel Management tab).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "video_id": {
+            "description": "YouTube video id",
+            "title": "Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "video_id"
+        ],
+        "title": "ListCommentsParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Comment": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Status"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "comment_id": {
+                "default": "",
+                "title": "Comment Id",
+                "type": "string"
+              },
+              "video_id": {
+                "default": "",
+                "title": "Video Id",
+                "type": "string"
+              },
+              "author": {
+                "default": "",
+                "title": "Author",
+                "type": "string"
+              },
+              "author_channel_id": {
+                "default": "",
+                "title": "Author Channel Id",
+                "type": "string"
+              },
+              "text": {
+                "default": "",
+                "title": "Text",
+                "type": "string"
+              },
+              "like_count": {
+                "default": 0,
+                "title": "Like Count",
+                "type": "integer"
+              },
+              "published_at": {
+                "default": "",
+                "title": "Published At",
+                "type": "string"
+              },
+              "moderation_status": {
+                "default": "published",
+                "title": "Moderation Status",
+                "type": "string"
+              },
+              "reply_count": {
+                "default": 0,
+                "title": "Reply Count",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Comment",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Comment"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "CommentList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "reply_to_comment",
+      "description": "Post a reply to a comment thread, as the connected YouTube channel.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "comment.reply.create"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "comment_thread_id": {
+            "description": "Top-level comment/thread id to reply under",
+            "title": "Comment Thread Id",
+            "type": "string"
+          },
+          "text": {
+            "description": "Reply text",
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "comment_thread_id",
+          "text"
+        ],
+        "title": "ReplyCommentParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "comment_id": {
+            "default": "",
+            "title": "Comment Id",
+            "type": "string"
+          },
+          "video_id": {
+            "default": "",
+            "title": "Video Id",
+            "type": "string"
+          },
+          "author": {
+            "default": "",
+            "title": "Author",
+            "type": "string"
+          },
+          "author_channel_id": {
+            "default": "",
+            "title": "Author Channel Id",
+            "type": "string"
+          },
+          "text": {
+            "default": "",
+            "title": "Text",
+            "type": "string"
+          },
+          "like_count": {
+            "default": 0,
+            "title": "Like Count",
+            "type": "integer"
+          },
+          "published_at": {
+            "default": "",
+            "title": "Published At",
+            "type": "string"
+          },
+          "moderation_status": {
+            "default": "published",
+            "title": "Moderation Status",
+            "type": "string"
+          },
+          "reply_count": {
+            "default": 0,
+            "title": "Reply Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Comment",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.comment.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "moderate_comment",
+      "description": "Set a comment's moderation status: published, held for review, or rejected.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "comment.moderation.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "comment_id": {
+            "description": "YouTube comment id",
+            "title": "Comment Id",
+            "type": "string"
+          },
+          "status": {
+            "description": "published, heldForReview, or rejected",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "comment_id",
+          "status"
+        ],
+        "title": "ModerateCommentParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.comment.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "save_content_idea",
+      "description": "Save a content idea/SEO note for a channel -- title direction, target keyword, and why it might work.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "idea.create"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id this idea is for",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "title": {
+            "description": "Idea/working title",
+            "title": "Title",
+            "type": "string"
+          },
+          "target_keyword": {
+            "default": "",
+            "description": "Target search keyword/phrase, if any",
+            "title": "Target Keyword",
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "description": "Why this idea might work",
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id",
+          "title"
+        ],
+        "title": "SaveIdeaParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "default": "idea",
+            "title": "Status",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "target_keyword": {
+            "default": "",
+            "title": "Target Keyword",
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Idea",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.idea.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "list_content_ideas",
+      "description": "List saved content ideas for a channel (Content Ideas tab).",
+      "action_type": "read",
+      "chain_callable": true,
+      "effects": [],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel_id"
+        ],
+        "title": "ListIdeasParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Idea": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "default": "idea",
+                "title": "Status",
+                "type": "string"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "channel_id": {
+                "default": "",
+                "title": "Channel Id",
+                "type": "string"
+              },
+              "target_keyword": {
+                "default": "",
+                "title": "Target Keyword",
+                "type": "string"
+              },
+              "rationale": {
+                "default": "",
+                "title": "Rationale",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Idea",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Idea"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "IdeaList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "generate_content_ideas",
+      "description": "Ask the AI to draft new content ideas for a channel, grounded in its recent top-performing videos and traffic sources -- helps answer 'what should I film next'.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "idea.create"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "channel_id": {
+            "description": "YouTube channel id",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "channel_title": {
+            "description": "Channel title, used to ground the AI prompt",
+            "title": "Channel Title",
+            "type": "string"
+          },
+          "context": {
+            "default": "",
+            "description": "Extra creator context/direction for idea generation",
+            "title": "Context",
+            "type": "string"
+          },
+          "count": {
+            "default": 5,
+            "description": "How many ideas to generate",
+            "maximum": 15,
+            "minimum": 1,
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "channel_id",
+          "channel_title"
+        ],
+        "title": "GenerateContentIdeasParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "$defs": {
+          "Idea": {
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ],
+                "title": "Id"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "kind": {
+                "default": "",
+                "title": "Kind",
+                "type": "string"
+              },
+              "subtitle": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Subtitle"
+              },
+              "description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Description"
+              },
+              "status": {
+                "default": "idea",
+                "title": "Status",
+                "type": "string"
+              },
+              "url": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Url"
+              },
+              "channel_id": {
+                "default": "",
+                "title": "Channel Id",
+                "type": "string"
+              },
+              "target_keyword": {
+                "default": "",
+                "title": "Target Keyword",
+                "type": "string"
+              },
+              "rationale": {
+                "default": "",
+                "title": "Rationale",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "title": "Idea",
+            "type": "object",
+            "x-sdl": "entity"
+          }
+        },
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Idea"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Total"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Page"
+          },
+          "has_more": {
+            "default": false,
+            "title": "Has More",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "IdeaList",
+        "type": "object",
+        "x-sdl": "entity-list"
+      },
+      "event": "youtube-studio-hub.idea.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "update_idea_status",
+      "description": "Move a content idea to a new status: idea, planned, filmed, or done.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "idea.update"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "idea_id": {
+            "description": "Content idea id",
+            "title": "Idea Id",
+            "type": "string"
+          },
+          "status": {
+            "description": "idea, planned, filmed, or done",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "idea_id",
+          "status"
+        ],
+        "title": "UpdateIdeaStatusParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "default": "idea",
+            "title": "Status",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "channel_id": {
+            "default": "",
+            "title": "Channel Id",
+            "type": "string"
+          },
+          "target_keyword": {
+            "default": "",
+            "title": "Target Keyword",
+            "type": "string"
+          },
+          "rationale": {
+            "default": "",
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "Idea",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.idea.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    },
+    {
+      "name": "delete_idea",
+      "description": "Permanently delete a saved content idea.",
+      "action_type": "write",
+      "chain_callable": true,
+      "effects": [
+        "idea.delete"
+      ],
+      "id_projection": "",
+      "params_schema": {
+        "properties": {
+          "idea_id": {
+            "description": "Content idea id to permanently delete",
+            "title": "Idea Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "idea_id"
+        ],
+        "title": "DeleteIdeaParams",
+        "type": "object"
+      },
+      "return_schema": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "kind": {
+            "default": "",
+            "title": "Kind",
+            "type": "string"
+          },
+          "subtitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subtitle"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Url"
+          },
+          "account": {
+            "default": "",
+            "title": "Account",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "action": {
+            "default": "",
+            "title": "Action",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "SettingResult",
+        "type": "object",
+        "x-sdl": "entity"
+      },
+      "event": "youtube-studio-hub.idea.updated",
+      "background": false,
+      "long_running": false,
+      "scopes": [],
+      "owner_chat_tool": "youtube_studio"
+    }
+  ],
+  "signals": [],
+  "schedules": [],
+  "required_scopes": [],
+  "icon_size_bytes": 547,
+  "oauth": [
+    {
+      "provider": "google",
+      "collection": "youtube_accounts",
+      "scopes": [
+        "openid",
+        "email",
+        "profile",
+        "https://www.googleapis.com/auth/youtube.readonly",
+        "https://www.googleapis.com/auth/youtube.force-ssl",
+        "https://www.googleapis.com/auth/yt-analytics.readonly",
+        "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+      ],
+      "has_hook": false
+    }
+  ],
+  "lifecycle": {
+    "health_check": {
+      "interval_sec": 60
+    }
+  },
+  "secrets": [
+    {
+      "name": "google_client_id",
+      "description": "Google OAuth client ID for YouTube Studio Hub.",
+      "required": true,
+      "write_mode": "user",
+      "max_bytes": 4096,
+      "scope": "app"
+    },
+    {
+      "name": "google_client_secret",
+      "description": "Google OAuth client secret for YouTube Studio Hub.",
+      "required": true,
+      "write_mode": "user",
+      "max_bytes": 4096,
+      "scope": "app"
+    }
+  ],
+  "panels": [
+    {
+      "panel_id": "secrets",
+      "slot": "right",
+      "title": "Secrets",
+      "tree": {},
+      "icon": "KeyRound",
+      "refresh": "manual",
+      "center_overlay": false
+    },
+    {
+      "panel_id": "yt_nav",
+      "slot": "left",
+      "title": "YouTube Studio",
+      "tree": {},
+      "icon": "Youtube",
+      "refresh": "on_event:youtube-studio-hub.account.updated",
+      "center_overlay": false,
+      "default_width": 280,
+      "min_width": 220,
+      "max_width": 400
+    },
+    {
+      "panel_id": "yt_connect_dialog",
+      "slot": "overlay",
+      "title": "Connect Google Account",
+      "tree": {},
+      "icon": "",
+      "refresh": "manual",
+      "center_overlay": true
+    },
+    {
+      "panel_id": "yt_settings",
+      "slot": "overlay",
+      "title": "App Settings",
+      "tree": {},
+      "icon": "",
+      "refresh": "manual",
+      "center_overlay": true
+    },
+    {
+      "panel_id": "yt_center",
+      "slot": "center",
+      "title": "YouTube Studio Hub",
+      "tree": {},
+      "icon": "",
+      "refresh": "on_event:youtube-studio-hub.video.updated,youtube-studio-hub.idea.updated,youtube-studio-hub.comment.updated",
+      "center_overlay": false
+    }
+  ]
+}
