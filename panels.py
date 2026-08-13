@@ -6,14 +6,13 @@ Sidebar layout, top to bottom, per approved spec (design/ux-spec.md §1):
   2. ui.Divider
   3. Google account selector (ui.Select, switches the active account)
      plus an "Add another Google account" button.
-  4. ui.Divider
-  5. Channel selector (ui.Select, scoped to the active account only).
+  4. ui.Divider(label="Channels")
+  5. Clickable list of channels (avatar + title) belonging to the active
+     account only -- the ONLY channel picker; there is no second,
+     redundant channel ui.Select next to it. Clicking one loads the
+     channel detail in the center panel.
   6. ui.Divider
-  7. "App Settings" button (single button, opens the settings panel).
-  8. ui.Divider
-  9. Clickable list of channels (avatar + title) belonging to the active
-     account only. Clicking one loads the channel detail in the center
-     panel.
+  7. "App Settings" button -- last item in the sidebar.
 
 Center layout: empty state until a channel is selected. Once selected:
   channel title + link, then a tab bar (My Content (N) [default] / Analytics
@@ -164,19 +163,18 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
     )
 
     all_options = await _channel_options(ctx)
-    if not all_options:
-        # Cache is empty (first connect) -- refresh it live once.
+    active_has_cache = any(o["account_email"].lower() == active_email.lower() for o in all_options)
+    if not all_options or not active_has_cache:
+        # Refresh live whenever the cache is totally empty, OR the ACTIVE
+        # account specifically has no cached channels yet (e.g. it was just
+        # connected while another account's cache was already populated --
+        # only checking "is the whole list empty" would leave this account
+        # permanently blank until some unrelated full-cache-miss happened).
         for doc in docs:
-            all_options.extend(await _refresh_channel_cache(ctx, doc))
+            if _email(doc).lower() == active_email.lower() or not all_options:
+                all_options = [o for o in all_options if o["account_email"].lower() != _email(doc).lower()]
+                all_options.extend(await _refresh_channel_cache(ctx, doc))
     options = [o for o in all_options if o["account_email"].lower() == active_email.lower()]
-
-    channel_select = ui.Select(
-        options=[{"label": o["title"], "value": o["channel_id"]} for o in options],
-        value=active_channel if active_channel in {o["channel_id"] for o in options} else "",
-        placeholder="Select a channel…",
-        on_change=ui.Call("__panel__yt_center", channel_id="{{value}}"),
-        param_name="value",
-    ) if options else ui.Text("No channels found on this account.", variant="caption")
 
     channel_items = [
         ui.ListItem(
@@ -194,14 +192,11 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
         ui.Text("Google account", variant="caption"),
         account_select,
         add_account_btn,
-        ui.Divider(),
-        ui.Text("Channel", variant="caption"),
-        channel_select,
+        ui.Divider(label="Channels"),
+        ui.List(items=channel_items) if channel_items else ui.Empty(message="No channels on this account yet.", icon="Youtube"),
         ui.Divider(),
         ui.Button("App Settings", icon="Settings", variant="secondary", full_width=True,
                   on_click=ui.Call("__panel__yt_settings")),
-        ui.Divider(label="Channels"),
-        ui.List(items=channel_items) if channel_items else ui.Empty(message="No channels on this account yet.", icon="Youtube"),
     ])
 
 
