@@ -4,13 +4,16 @@ Sidebar layout, top to bottom, per approved spec (design/ux-spec.md §1):
   1. "Connect Google Account" CTA button -> opens ui.Dialog with the
      Google OAuth link.
   2. ui.Divider
-  3. ui.Select -- pick which connected channel is "active" (drives what
-     the rest of the app assumes when no channel_id is passed explicitly).
+  3. Google account selector (ui.Select, switches the active account)
+     plus an "Add another Google account" button.
   4. ui.Divider
-  5. "App Settings" button (single button, opens the settings panel).
+  5. Channel selector (ui.Select, scoped to the active account only).
   6. ui.Divider
-  7. Clickable list of channels (avatar + title), across every connected
-     account. Clicking one loads the channel detail in the center panel.
+  7. "App Settings" button (single button, opens the settings panel).
+  8. ui.Divider
+  9. Clickable list of channels (avatar + title) belonging to the active
+     account only. Clicking one loads the channel detail in the center
+     panel.
 
 Center layout: empty state until a channel is selected. Once selected:
   channel title + link, then a tab bar (My Content (N) [default] / Analytics
@@ -124,6 +127,10 @@ async def _refresh_channel_cache(ctx, doc) -> list[dict]:
              "account_email": _email(doc)} for c in channels]
 
 
+def _account_options(docs) -> list[dict]:
+    return [{"label": _label(doc), "value": _email(doc)} for doc in docs if not accounts.identity_missing(doc)]
+
+
 @ext.panel("yt_nav", slot="left", title="YouTube Studio", icon="Youtube",
            default_width=280, min_width=220, max_width=400,
            refresh="on_event:youtube-studio-hub.account.updated")
@@ -142,19 +149,34 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
             ui.Empty(message="No Google account connected yet.", icon="Youtube"),
         ])
 
-    options = await _channel_options(ctx)
-    if not options:
+    active = await accounts.resolve_account(ctx)
+    active_doc = active.get("account") if active.get("ok") else docs[0]
+    active_email = _email(active_doc)
+
+    account_select = ui.Select(
+        options=_account_options(docs), value=active_email,
+        placeholder="Select a Google account…", param_name="account",
+        on_change=ui.Call("switch_account", account="{{value}}"),
+    )
+    add_account_btn = ui.Button(
+        "Add another Google account", icon="Plus", variant="ghost", full_width=True,
+        on_click=ui.Call("__panel__yt_connect_dialog"),
+    )
+
+    all_options = await _channel_options(ctx)
+    if not all_options:
         # Cache is empty (first connect) -- refresh it live once.
         for doc in docs:
-            options.extend(await _refresh_channel_cache(ctx, doc))
+            all_options.extend(await _refresh_channel_cache(ctx, doc))
+    options = [o for o in all_options if o["account_email"].lower() == active_email.lower()]
 
-    select = ui.Select(
+    channel_select = ui.Select(
         options=[{"label": o["title"], "value": o["channel_id"]} for o in options],
-        value=active_channel,
+        value=active_channel if active_channel in {o["channel_id"] for o in options} else "",
         placeholder="Select a channel…",
-        on_change=ui.Call("__panel__yt_center", channel_id="{value}"),
+        on_change=ui.Call("__panel__yt_center", channel_id="{{value}}"),
         param_name="value",
-    ) if options else ui.Text("No channels found on the connected account(s).", variant="caption")
+    ) if options else ui.Text("No channels found on this account.", variant="caption")
 
     channel_items = [
         ui.ListItem(
@@ -169,12 +191,17 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
     return ui.Stack(children=[
         connect_btn,
         ui.Divider(),
-        select,
+        ui.Text("Google account", variant="caption"),
+        account_select,
+        add_account_btn,
+        ui.Divider(),
+        ui.Text("Channel", variant="caption"),
+        channel_select,
         ui.Divider(),
         ui.Button("App Settings", icon="Settings", variant="secondary", full_width=True,
                   on_click=ui.Call("__panel__yt_settings")),
         ui.Divider(label="Channels"),
-        ui.List(items=channel_items) if channel_items else ui.Empty(message="No channels yet.", icon="Youtube"),
+        ui.List(items=channel_items) if channel_items else ui.Empty(message="No channels on this account yet.", icon="Youtube"),
     ])
 
 
