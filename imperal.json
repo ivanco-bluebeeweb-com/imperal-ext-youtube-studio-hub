@@ -4113,7 +4113,7 @@
     },
     {
       "panel_id": "yt_connect_dialog",
-      "slot": "overlay",
+      "slot": "center",
       "title": "Connect Google Account",
       "tree": {},
       "icon": "",
@@ -4122,7 +4122,7 @@
     },
     {
       "panel_id": "yt_settings",
-      "slot": "overlay",
+      "slot": "center",
       "title": "App Settings",
       "tree": {},
       "icon": "",

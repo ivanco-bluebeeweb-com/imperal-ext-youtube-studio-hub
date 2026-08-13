@@ -153,14 +153,14 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
     ])
 
 
-@ext.panel("yt_connect_dialog", slot="overlay", title="Connect Google Account",
+@ext.panel("yt_connect_dialog", slot="center", title="Connect Google Account",
            center_overlay=True)
 async def yt_connect_dialog(ctx, **kwargs):
     content = await _connect_dialog_content(ctx)
     return ui.Dialog(title="Connect Google Account", content=content, confirm_label="", cancel_label="Close")
 
 
-@ext.panel("yt_settings", slot="overlay", title="App Settings", center_overlay=True)
+@ext.panel("yt_settings", slot="center", title="App Settings", center_overlay=True)
 async def yt_settings(ctx, **kwargs):
     docs = await accounts.all_accounts(ctx)
     setting = await accounts.app_setting(ctx)
