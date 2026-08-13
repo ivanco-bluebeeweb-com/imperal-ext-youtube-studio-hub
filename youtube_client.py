@@ -146,6 +146,26 @@ async def valid_access_token(ctx, account_doc) -> dict:
     return await refresh_access_token(ctx, account_doc)
 
 
+async def _dispatch(ctx, method: str, url: str, *, params=None, json_body=None, headers=None, content=None):
+    """ctx.http has no generic .request() -- only named verb methods
+    (get/post/put/patch/delete) -- so route by method name explicitly."""
+    verb = method.upper()
+    fn = {
+        "GET": ctx.http.get, "POST": ctx.http.post, "PUT": ctx.http.put,
+        "PATCH": ctx.http.patch, "DELETE": ctx.http.delete,
+    }.get(verb)
+    if fn is None:
+        raise ValueError(f"Unsupported HTTP method: {method}")
+    kwargs = {"headers": headers or {}}
+    if params is not None:
+        kwargs["params"] = params
+    if json_body is not None:
+        kwargs["json"] = json_body
+    if content is not None:
+        kwargs["content"] = content
+    return await fn(url, **kwargs)
+
+
 async def api_call(ctx, account_doc, method: str, url: str, *, params: dict | None = None,
                     json_body: dict | None = None, base: str = YOUTUBE_API) -> dict:
     """Single authorized call to the YouTube Data or Analytics API, with one
@@ -157,7 +177,7 @@ async def api_call(ctx, account_doc, method: str, url: str, *, params: dict | No
         headers = {"Authorization": f"Bearer {token_out['access_token']}"}
         full_url = url if url.startswith("http") else f"{base}{url}"
         try:
-            resp = await ctx.http.request(method, full_url, params=params, json=json_body, headers=headers)
+            resp = await _dispatch(ctx, method, full_url, params=params, json_body=json_body, headers=headers)
         except Exception as exc:
             return fail(_timeout_code(exc), str(exc))
         body = _body(resp)
@@ -304,8 +324,8 @@ async def set_video_thumbnail(ctx, account_doc, video_id: str, image_url: str) -
     if not token_out.get("ok"):
         return token_out
     try:
-        resp = await ctx.http.request(
-            "POST", f"{YOUTUBE_UPLOAD_API}/thumbnails/set",
+        resp = await _dispatch(
+            ctx, "POST", f"{YOUTUBE_UPLOAD_API}/thumbnails/set",
             params={"videoId": video_id, "uploadType": "media"},
             headers={"Authorization": f"Bearer {token_out['access_token']}", "Content-Type": content_type},
             content=img_resp.content if hasattr(img_resp, "content") else img_resp.body,
