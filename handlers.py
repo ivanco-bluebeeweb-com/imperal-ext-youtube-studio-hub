@@ -99,7 +99,7 @@ async def disconnect_account(ctx, params: DisconnectAccountParams) -> "ActionRes
     if not out.get("ok"):
         return _error(out)
     return _success(SettingResult(id=params.account_id, title=out.get("label", ""), account="", enabled=False, action="disconnected"),
-                     f"Disconnected {out.get('label', 'the account')}. No YouTube data was changed.", ["yt_nav", "yt_center"])
+                     f"Disconnected {out.get('label', 'the account')}. No YouTube data was changed.", ["yt_nav", "yt_center2"])
 
 
 @chat.function("switch_account", "Change the active Google account used by default.",
@@ -199,7 +199,7 @@ async def update_video_metadata(ctx, params: UpdateVideoMetadataParams) -> "Acti
     out = await yc.update_video_metadata(ctx, resolved["account"], params)
     if not out.get("ok"):
         return _error(out)
-    return _success(to_video(out["item"]), "Video metadata updated.", ["yt_center"])
+    return _success(to_video(out["item"]), "Video metadata updated.", ["yt_center2"])
 
 
 @chat.function("set_video_thumbnail", "Replace a video's custom thumbnail image.",
@@ -214,7 +214,7 @@ async def set_video_thumbnail(ctx, params: SetVideoThumbnailParams) -> "ActionRe
     if not out.get("ok"):
         return _error(out)
     return _success(SettingResult(id=params.video_id, title="Thumbnail", account="", enabled=True, action="updated"),
-                     "Thumbnail updated.", ["yt_center"])
+                     "Thumbnail updated.", ["yt_center2"])
 
 
 # ---------------------------------------------------------------- analytics
@@ -345,7 +345,7 @@ async def reply_to_comment(ctx, params: ReplyCommentParams) -> "ActionResult":
     out = await yc.reply_to_comment(ctx, resolved["account"], params.comment_thread_id, params.text)
     if not out.get("ok"):
         return _error(out)
-    return _success(to_comment(out["item"]), "Reply posted.", ["yt_center"])
+    return _success(to_comment(out["item"]), "Reply posted.", ["yt_center2"])
 
 
 @chat.function("moderate_comment", "Set a comment's moderation status: published, held for review, or rejected.",
@@ -360,7 +360,7 @@ async def moderate_comment(ctx, params: ModerateCommentParams) -> "ActionResult"
     if not out.get("ok"):
         return _error(out)
     return _success(SettingResult(id=params.comment_id, title="Comment", account="", enabled=True, action=params.status),
-                     f"Comment moderation set to {params.status}.", ["yt_center"])
+                     f"Comment moderation set to {params.status}.", ["yt_center2"])
 
 
 # --------------------------------------------------------------- content ideas
@@ -378,7 +378,7 @@ async def save_content_idea(ctx, params: SaveIdeaParams) -> "ActionResult":
     })
     idea = Idea(id=doc.id, channel_id=params.channel_id, title=params.title,
                 target_keyword=params.target_keyword, rationale=params.rationale, status="idea")
-    return _success(idea, "Idea saved.", ["yt_center"])
+    return _success(idea, "Idea saved.", ["yt_center2"])
 
 
 @chat.function("list_content_ideas", "List saved content ideas for a channel (Content Ideas tab).",
@@ -419,7 +419,7 @@ async def generate_content_ideas(ctx, params: GenerateContentIdeasParams) -> "Ac
                           target_keyword="", rationale="AI-suggested", status="idea"))
         if len(rows) >= params.count:
             break
-    return _success(IdeaList(items=rows), f"{len(rows)} idea(s) generated.", ["yt_center"])
+    return _success(IdeaList(items=rows), f"{len(rows)} idea(s) generated.", ["yt_center2"])
 
 
 @chat.function("update_idea_status", "Move a content idea to a new status: idea, planned, filmed, or done.",
@@ -434,7 +434,7 @@ async def update_idea_status(ctx, params: UpdateIdeaStatusParams) -> "ActionResu
     await ctx.store.update(IDEAS, params.idea_id, {"status": params.status})
     data = dict(doc.data or {})
     data["status"] = params.status
-    return _success(Idea(id=params.idea_id, **{k: v for k, v in data.items() if k != "id"}), "Idea updated.", ["yt_center"])
+    return _success(Idea(id=params.idea_id, **{k: v for k, v in data.items() if k != "id"}), "Idea updated.", ["yt_center2"])
 
 
 @chat.function("delete_idea", "Permanently delete a saved content idea.",
@@ -444,4 +444,4 @@ async def delete_idea(ctx, params: DeleteIdeaParams) -> "ActionResult":
     """Permanently delete a saved content idea."""
     await ctx.store.delete(IDEAS, params.idea_id)
     return _success(SettingResult(id=params.idea_id, title="Idea", account="", enabled=False, action="deleted"),
-                     "Idea deleted.", ["yt_center"])
+                     "Idea deleted.", ["yt_center2"])

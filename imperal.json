@@ -4121,7 +4121,7 @@
       "center_overlay": true
     },
     {
-      "panel_id": "yt_settings",
+      "panel_id": "yt_settings2",
       "slot": "center",
       "title": "App Settings",
       "tree": {},
@@ -4130,7 +4130,7 @@
       "center_overlay": true
     },
     {
-      "panel_id": "yt_center",
+      "panel_id": "yt_center2",
       "slot": "center",
       "title": "YouTube Studio Hub",
       "tree": {},

@@ -181,7 +181,7 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
             id=o["channel_id"], title=o["title"],
             avatar=ui.Avatar(fallback=(o["title"][:1] or "?"), src=o["thumbnail"]),
             selected=(o["channel_id"] == active_channel),
-            on_click=ui.Call("__panel__yt_center", channel_id=o["channel_id"]),
+            on_click=ui.Call("__panel__yt_center2", channel_id=o["channel_id"]),
         )
         for o in options
     ]
@@ -196,7 +196,7 @@ async def yt_nav(ctx, active_channel: str = "", **kwargs):
         ui.List(items=channel_items) if channel_items else ui.Empty(message="No channels on this account yet.", icon="Youtube"),
         ui.Divider(),
         ui.Button("App Settings", icon="Settings", variant="secondary", full_width=True,
-                  on_click=ui.Call("__panel__yt_settings")),
+                  on_click=ui.Call("__panel__yt_settings2")),
     ])
 
 
@@ -207,7 +207,7 @@ async def yt_connect_dialog(ctx, **kwargs):
     return ui.Dialog(title="Connect Google Account", content=content, confirm_label="", cancel_label="Close")
 
 
-@ext.panel("yt_settings", slot="center", title="App Settings", center_overlay=True)
+@ext.panel("yt_settings2", slot="center", title="App Settings", center_overlay=True)
 async def yt_settings(ctx, **kwargs):
     docs = await accounts.all_accounts(ctx)
     setting = await accounts.app_setting(ctx)
@@ -238,7 +238,7 @@ async def yt_settings(ctx, **kwargs):
 
 def _tab_bar(channel_id: str, active_tab: str, video_count: int) -> ui.Stack:
     def call(tab):
-        return ui.Call("__panel__yt_center", channel_id=channel_id, tab=tab)
+        return ui.Call("__panel__yt_center2", channel_id=channel_id, tab=tab)
 
     def btn(label, key):
         return ui.Button(label, variant="secondary" if active_tab == key else "ghost",
@@ -274,7 +274,7 @@ async def _content_tab(ctx, account_doc, channel_id: str):
             subtitle=f"{v.view_count:,} views · {v.published_at[:10]}",
             avatar=ui.Avatar(fallback="▶", src=v.thumbnail_url),
             badge=ui.Badge(label=v.visibility, color="gray" if v.visibility == "private" else "green"),
-            on_click=ui.Call("__panel__yt_center", channel_id=channel_id, tab="content", video_id=v.video_id),
+            on_click=ui.Call("__panel__yt_center2", channel_id=channel_id, tab="content", video_id=v.video_id),
         )
         for v in videos
     ]
@@ -329,7 +329,7 @@ async def _management_tab(ctx, account_doc, channel_id: str):
     playlists = [to_playlist(raw) for raw in pl_out.get("items", [])] if pl_out.get("ok") else []
     playlist_items = [
         ui.ListItem(id=p.playlist_id, title=p.title, subtitle=f"{p.item_count} video(s)",
-                    on_click=ui.Call("__panel__yt_center", channel_id=channel_id, tab="management", playlist_id=p.playlist_id))
+                    on_click=ui.Call("__panel__yt_center2", channel_id=channel_id, tab="management", playlist_id=p.playlist_id))
         for p in playlists
     ]
     return ui.Stack(children=[
@@ -361,7 +361,7 @@ async def _ideas_tab(ctx, channel_id: str, channel_title: str):
     ])
 
 
-@ext.panel("yt_center", slot="center", title="YouTube Studio Hub", center_overlay=True,
+@ext.panel("yt_center2", slot="center", title="YouTube Studio Hub", center_overlay=True,
            refresh="on_event:youtube-studio-hub.video.updated,youtube-studio-hub.idea.updated,youtube-studio-hub.comment.updated")
 async def yt_center(ctx, channel_id: str = "", tab: str = "content", video_id: str = "",
                      start_date: str = "", end_date: str = "", **kwargs):
@@ -434,7 +434,7 @@ async def _video_detail(ctx, account_doc, channel_id: str, video_id: str, channe
 
     return ui.Stack(children=[
         ui.Button("← Back to channel", icon="ArrowLeft", variant="ghost", size="sm",
-                  on_click=ui.Call("__panel__yt_center", channel_id=channel_id, tab="content")),
+                  on_click=ui.Call("__panel__yt_center2", channel_id=channel_id, tab="content")),
         ui.Header(video.title, level=2),
         ui.Link(text=f"https://youtu.be/{video_id}", href=f"https://youtu.be/{video_id}"),
         ui.Text(video.description[:400], variant="caption"),
