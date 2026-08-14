@@ -4136,7 +4136,7 @@
       "tree": {},
       "icon": "",
       "refresh": "on_event:youtube-studio-hub.video.updated,youtube-studio-hub.idea.updated,youtube-studio-hub.comment.updated",
-      "center_overlay": false
+      "center_overlay": true
     }
   ]
 }

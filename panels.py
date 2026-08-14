@@ -361,7 +361,7 @@ async def _ideas_tab(ctx, channel_id: str, channel_title: str):
     ])
 
 
-@ext.panel("yt_center", slot="center", title="YouTube Studio Hub",
+@ext.panel("yt_center", slot="center", title="YouTube Studio Hub", center_overlay=True,
            refresh="on_event:youtube-studio-hub.video.updated,youtube-studio-hub.idea.updated,youtube-studio-hub.comment.updated")
 async def yt_center(ctx, channel_id: str = "", tab: str = "content", video_id: str = "",
                      start_date: str = "", end_date: str = "", **kwargs):
