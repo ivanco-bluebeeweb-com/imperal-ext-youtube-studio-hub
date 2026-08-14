@@ -2,7 +2,7 @@
   "manifest_schema_version": 3,
   "sdk_version": "5.9.19",
   "app_id": "youtube-studio-hub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "YouTube Studio Hub",
   "description": "Connect one or more Google accounts and manage every YouTube channel they own from one place: content metadata, analytics, channel management (playlists/comments), and content ideas. Does not edit, trim, or re-encode video files -- that stays in YouTube Studio.",
   "icon": "icon.svg",

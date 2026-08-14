@@ -27,7 +27,7 @@ from imperal_sdk import ChatExtension, Extension
 
 ext = Extension(
     "youtube-studio-hub",
-    version="0.1.0",
+    version="0.1.1",
     display_name="YouTube Studio Hub",
     description=(
         "Connect one or more Google accounts and manage every YouTube "
