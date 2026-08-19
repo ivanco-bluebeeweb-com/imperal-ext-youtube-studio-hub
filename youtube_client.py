@@ -10,7 +10,10 @@ handler in this app returns on failure.
 
 from __future__ import annotations
 
+import ipaddress
+import socket
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlparse
 
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 YOUTUBE_ANALYTICS_API = "https://youtubeanalytics.googleapis.com/v2/reports"
@@ -310,9 +313,55 @@ async def update_video_metadata(ctx, account_doc, params) -> dict:
     return {"ok": True, "item": out["data"]}
 
 
+def _check_host_is_public(host: str) -> str | None:
+    """Resolve host and return a refusal reason, or None if it's safe to fetch.
+
+    Same SSRF guard as SEO Audit Engine's seoaudit/fetcher.py -- checks EVERY
+    resolved address (A and AAAA); if even one is private/loopback/link-local/
+    reserved/multicast, the whole host is refused rather than just that one IP,
+    since a multi-answer DNS response doesn't let us pick which IP the
+    following connect() will actually use. Known residual risk (same as that
+    file): DNS rebinding between this check and the actual connect() is not
+    closed by this guard.
+    """
+    hostname = host.split(":")[0].strip("[]")
+    if not hostname:
+        return "empty host"
+    try:
+        infos = socket.getaddrinfo(hostname, None)
+    except socket.gaierror as e:
+        return f"host does not resolve: {e}"
+    for info in infos:
+        raw_ip = info[4][0]
+        try:
+            ip = ipaddress.ip_address(raw_ip)
+        except ValueError:
+            continue
+        if (
+            ip.is_private or ip.is_loopback or ip.is_link_local
+            or ip.is_reserved or ip.is_multicast or ip.is_unspecified
+        ):
+            return f"address {raw_ip} is private/internal -- refusing to fetch it"
+    return None
+
+
 async def set_video_thumbnail(ctx, account_doc, video_id: str, image_url: str) -> dict:
     """Fetch the given https:// image and upload it as the video's custom
-    thumbnail via the upload endpoint's media-only mode."""
+    thumbnail via the upload endpoint's media-only mode.
+
+    SSRF guard: image_url is fully user-supplied and, once fetched, its bytes
+    get uploaded as a PUBLIC video thumbnail -- so this isn't just a
+    server-hangs-itself risk like a plain fetcher, it's a potential
+    exfiltration path (fetch an internal/metadata endpoint, publish its
+    response body as a public thumbnail). Refuse private/loopback/link-local/
+    reserved targets before ever calling ctx.http.get() on them.
+    """
+    parsed = urlparse(image_url)
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        return fail(VALIDATION_FAILED, "image_url must be a public http(s):// URL.")
+    refusal = _check_host_is_public(parsed.hostname)
+    if refusal:
+        return fail(VALIDATION_FAILED, f"That image URL cannot be fetched ({refusal}).")
     try:
         img_resp = await ctx.http.get(image_url)
     except Exception as exc:

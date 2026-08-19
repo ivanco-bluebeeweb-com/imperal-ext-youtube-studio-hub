@@ -446,7 +446,18 @@ async def delete_idea(ctx, params: DeleteIdeaParams) -> "ActionResult":
     action_type="destructive", not "write": there is no undo path (a
     straight store delete), so the kernel's own confirmation guard must
     intercept the call. A hand-rolled panel confirm here would double-prompt.
+
+    ctx.store.delete() returns bool -- a retried/second call on an already-
+    deleted idea must surface a clean error, not silently re-claim success
+    (matches the convention used for delete_card/delete_highlight/delete_post
+    elsewhere in the portfolio).
     """
-    await ctx.store.delete(IDEAS, params.idea_id)
+    from imperal_sdk import ActionResult
+    deleted = await ctx.store.delete(IDEAS, params.idea_id)
+    if not deleted:
+        return ActionResult.error(
+            "That idea is already gone (nothing to delete).",
+            retryable=False, code="YOUTUBE_IDEA_NOT_FOUND",
+        )
     return _success(SettingResult(id=params.idea_id, title="Idea", account="", enabled=False, action="deleted"),
                      "Idea deleted.", ["yt_center2"])

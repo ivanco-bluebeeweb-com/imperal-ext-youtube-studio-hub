@@ -152,6 +152,32 @@ async def test_set_video_thumbnail_uploads_fetched_image(ctx, account):
     assert out.status == "success"
 
 
+# ---------- Part D3 (SCENARIO_TESTING_STANDARD.md): security / SSRF -------
+
+@pytest.mark.asyncio
+async def test_d3_set_video_thumbnail_refuses_private_ip_target(ctx, account):
+    """image_url is fully user-supplied and, once fetched, gets uploaded as a
+    PUBLIC video thumbnail -- an unguarded fetch here is a real SSRF with an
+    exfiltration angle (internal/metadata response body ends up published).
+    127.0.0.1 resolves locally with no network access needed, so this test
+    is fully offline. No ctx.http mock is pushed -- if the guard regresses
+    and this reaches ctx.http.get(), the test fails on a missing mock,
+    which is itself a loud signal the refusal stopped happening."""
+    out = await h.set_video_thumbnail(
+        ctx, SetVideoThumbnailParams(video_id="vid1", image_url="http://127.0.0.1/secret"),
+    )
+    assert out.status == "error"
+    assert "cannot be fetched" in (out.error or "").lower()
+
+
+@pytest.mark.asyncio
+async def test_d3_set_video_thumbnail_refuses_non_http_scheme(ctx, account):
+    out = await h.set_video_thumbnail(
+        ctx, SetVideoThumbnailParams(video_id="vid1", image_url="file:///etc/passwd"),
+    )
+    assert out.status == "error"
+
+
 # -------------------------------------------------------------- analytics
 
 @pytest.mark.asyncio
@@ -286,3 +312,20 @@ async def test_update_idea_status_and_delete(ctx):
 async def test_update_idea_status_missing_is_error(ctx):
     out = await h.update_idea_status(ctx, UpdateIdeaStatusParams(idea_id="nope", status="planned"))
     assert out.status == "error"
+
+
+# ---------- Part D2 (SCENARIO_TESTING_STANDARD.md): idempotency ----------
+
+@pytest.mark.asyncio
+async def test_d2_double_delete_idea_second_call_fails_clean(ctx):
+    """A retried delete_idea on an already-deleted idea must surface a clean
+    error, not silently re-claim success -- ctx.store.delete() returns bool
+    and the handler must actually check it (real bug found and fixed this
+    pass: it previously ignored the return value and always said "deleted")."""
+    saved = await h.save_content_idea(ctx, SaveIdeaParams(channel_id="UCabc123", title="Idea 1"))
+    idea_id = saved.data.id
+    first = await h.delete_idea(ctx, DeleteIdeaParams(idea_id=idea_id))
+    assert first.status == "success"
+    second = await h.delete_idea(ctx, DeleteIdeaParams(idea_id=idea_id))
+    assert second.status == "error"
+    assert second.error_code == "YOUTUBE_IDEA_NOT_FOUND"
