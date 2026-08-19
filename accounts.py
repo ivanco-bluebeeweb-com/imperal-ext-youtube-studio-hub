@@ -76,16 +76,29 @@ async def account_for_channel(ctx, channel_id: str) -> dict:
 
 
 async def disconnect(ctx, account_id: str) -> dict:
-    """Remove one OAuth account record and its account-scoped local data."""
+    """Remove one OAuth account record and its account-scoped local data.
+
+    Content ideas are stored keyed by channel_id, never by account_email --
+    no idea document has ever carried an account_email field, so a lookup
+    of youtube_content_ideas by account_email always returned zero rows.
+    That silently broke this function's own documented promise ("Its local
+    YouTube Studio Hub data (saved ideas) is removed"): disconnecting an
+    account never actually deleted its ideas. Fixed by matching ideas
+    through the account's own cached channel_ids instead, the same join
+    key account_for_channel() already relies on elsewhere in this file.
+    youtube_settings is intentionally left out of this cleanup: it holds
+    one single app-wide scope="app" document, not per-account data, so
+    there is nothing account-scoped to remove there.
+    """
     doc = await ctx.store.get(ACCOUNTS, account_id)
     if not doc:
         return yc.fail(yc.ACCOUNT_MISSING, "That Google account is no longer connected.")
-    email = account_email(doc).lower()
-    if email:
-        for collection in ("youtube_settings", "youtube_content_ideas"):
-            page = await ctx.store.query(collection, where={"account_email": email}, limit=200)
-            for item in page.data:
-                await ctx.store.delete(collection, item.id)
+    channel_ids = set((doc.data or {}).get("channel_ids") or [])
+    if channel_ids:
+        page = await ctx.store.query("youtube_content_ideas", limit=500)
+        for item in page.data:
+            if (item.data or {}).get("channel_id") in channel_ids:
+                await ctx.store.delete("youtube_content_ideas", item.id)
     await ctx.store.delete(ACCOUNTS, account_id)
     remaining = await all_accounts(ctx)
     if remaining and not any(bool((x.data or {}).get("is_active")) for x in remaining):
