@@ -3925,7 +3925,7 @@
     {
       "name": "delete_idea",
       "description": "Permanently delete a saved content idea.",
-      "action_type": "write",
+      "action_type": "destructive",
       "chain_callable": true,
       "effects": [
         "idea.delete"

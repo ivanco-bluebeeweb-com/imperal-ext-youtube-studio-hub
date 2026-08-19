@@ -438,10 +438,15 @@ async def update_idea_status(ctx, params: UpdateIdeaStatusParams) -> "ActionResu
 
 
 @chat.function("delete_idea", "Permanently delete a saved content idea.",
-               action_type="write", effects=["idea.delete"],
+               action_type="destructive", effects=["idea.delete"],
                event="youtube-studio-hub.idea.updated", data_model=SettingResult)
 async def delete_idea(ctx, params: DeleteIdeaParams) -> "ActionResult":
-    """Permanently delete a saved content idea."""
+    """Permanently delete a saved content idea.
+
+    action_type="destructive", not "write": there is no undo path (a
+    straight store delete), so the kernel's own confirmation guard must
+    intercept the call. A hand-rolled panel confirm here would double-prompt.
+    """
     await ctx.store.delete(IDEAS, params.idea_id)
     return _success(SettingResult(id=params.idea_id, title="Idea", account="", enabled=False, action="deleted"),
                      "Idea deleted.", ["yt_center2"])

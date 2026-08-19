@@ -348,8 +348,7 @@ async def _ideas_tab(ctx, channel_id: str, channel_title: str):
             id=d.id, title=str((d.data or {}).get("title") or ""),
             subtitle=str((d.data or {}).get("target_keyword") or ""),
             badge=ui.Badge(label=str((d.data or {}).get("status") or "idea"), color="blue"),
-            actions=[{"label": "Delete", "icon": "Trash2", "on_click": ui.Call("delete_idea", idea_id=d.id),
-                      "confirm": "Delete this content idea?"}],
+            actions=[{"label": "Delete", "icon": "Trash2", "on_click": ui.Call("delete_idea", idea_id=d.id)}],
         )
         for d in ideas
     ]
